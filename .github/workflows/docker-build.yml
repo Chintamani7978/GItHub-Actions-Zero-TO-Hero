@@ -1,0 +1,13 @@
+name: Build and Push Docker Image (DISABLED)
+
+# This workflow is disabled - use deploy-app.yml instead
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Skipped
+        run: echo "This workflow is disabled - use deploy-app.yml instead"
