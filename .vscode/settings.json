@@ -1,5 +1,5 @@
 {
     "github-actions.workflows.pinned.workflows": [
-        ".github/workflows/docker-build-push.yml"
+        ".github/workflows/deploy-app.yml"
     ]
 }
