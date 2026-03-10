@@ -17,18 +17,36 @@ jobs:
         steps:
             - name: checkout code
               uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+
+            - name: Verify files
+              run: |
+                echo "Current directory:"
+                pwd
+                echo "Files:"
+                ls -la
+                echo "Dockerfile:"
+                cat Dockerfile
+                echo "docker-compose.yml:"
+                cat docker-compose.yml
 
             - name: Stop existing containers
               run: docker compose down || true
 
             - name: Build Docker image locally
-              run: docker build -t github-actions-app:latest .
+              run: |
+                echo "Building Docker image..."
+                docker build -t github-actions-app:latest .
+                docker images | grep github-actions-app
 
             - name: Deploy with Docker Compose
               run: |
-                export DOCKERHUB_USER=local
-                export DOCKER_TAG=latest
-                docker compose up -d --force-recreate
+                echo "Deploying Flask app..."
+                docker compose down || true
+                docker compose up -d
+                echo "Docker containers:"
+                docker compose ps
 
             - name: Wait for Flask app to be ready
               run: |
