@@ -1,31 +1,12 @@
-name: Docker Build & Push
+name: Docker Build & Push (DISABLED)
 
+# This workflow is disabled - use deploy-app.yml instead
 on:
   workflow_dispatch:
-
+    
 jobs:
-  build-and-push:
+  disabled:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Code Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: chintamani7978
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build & Push to Docker Hub
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            chintamani7978/github-actions-app:${{ github.ref_name }}
-            chintamani7978/github-actions-app:latest
-            chintamani7978/github-actions-app:${{ github.sha }}
+      - name: Skipped
+        run: echo "This workflow is disabled"
