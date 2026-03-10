@@ -40,6 +40,13 @@ jobs:
                 docker build -t github-actions-app:latest .
                 docker images | grep github-actions-app
 
+            - name: Verify gunicorn is installed
+              run: |
+                echo "Checking if gunicorn is installed in the image..."
+                docker run --rm github-actions-app:latest pip show gunicorn
+                echo "Checking if gunicorn is in PATH..."
+                docker run --rm github-actions-app:latest which gunicorn
+
             - name: Deploy with Docker Compose
               run: |
                 echo "Deploying Flask app..."
