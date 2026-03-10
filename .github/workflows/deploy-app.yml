@@ -47,7 +47,7 @@ jobs:
               run: |
                 echo "Starting Flask container..."
                 docker run -d \
-                  -p 80:5000 \
+                  -p 5000:5000 \
                   --name flask-app \
                   flask-app:latest
                 echo "Container started. Waiting for app..."
@@ -64,8 +64,8 @@ jobs:
               run: |
                 echo "Testing Flask app health..."
                 for i in {1..30}; do
-                  if curl -f http://localhost:80/ 2>/dev/null; then
-                    echo "✅ Flask app is running!"
+                  if curl -f http://localhost:5000/ 2>/dev/null; then
+                    echo "✅ Flask app is running on port 5000!"
                     break
                   fi
                   echo "Attempt $i/30: Waiting for app..."
@@ -75,11 +75,11 @@ jobs:
             - name: Test Flask endpoints
               run: |
                 echo "=== Testing / endpoint ==="
-                curl -v http://localhost:80/ || true
+                curl -v http://localhost:5000/ || true
                 echo -e "\n=== Testing /health endpoint ==="
-                curl -v http://localhost:80/health || true
+                curl -v http://localhost:5000/health || true
                 echo -e "\n=== Testing /api/message endpoint ==="
-                curl -v http://localhost:80/api/message || true
+                curl -v http://localhost:5000/api/message || true
 
             - name: Cleanup on failure
               if: failure()
