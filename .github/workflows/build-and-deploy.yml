@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+    env:
+      DOCKERHUB_USER: localhost
+      DOCKER_TAG: latest
 
     steps:
       - name: Checkout code
@@ -19,7 +22,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t flask-app:latest .
+          docker build -t localhost/github-actions-app:latest .
           echo "Docker image built successfully"
 
       - name: Deploy with docker-compose
