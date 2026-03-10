@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
+
 app = Flask(__name__)
 
 
@@ -9,4 +10,13 @@ def hello_world():
 
 @app.route('/health')
 def health():
-    return 'Server is up and running'
+    return jsonify({"status": "Server is up and running"})
+
+
+@app.route('/api/message')
+def get_message():
+    return jsonify({"message": "Welcome to Flask App!"})
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)

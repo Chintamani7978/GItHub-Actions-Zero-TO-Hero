@@ -1,17 +1,13 @@
 name: Deploy Flask App
 
 on:
-    workflow_run:
-        workflows: ["Docker Build & Push"] # Name of the upstream workflow
-        types: [completed]
+    push:
         branches:
             - main
     
 jobs:
 
     deploy:
-        if: github.event.workflow_run.conclusion == 'success'
-
         runs-on: self-hosted
 
         steps:
@@ -20,40 +16,28 @@ jobs:
               with:
                 fetch-depth: 0
 
-            - name: Verify files
+            - name: Kill any existing Flask container
               run: |
-                echo "Current directory:"
-                pwd
-                echo "Files:"
-                ls -la
-                echo "Dockerfile:"
-                cat Dockerfile
-                echo "docker-compose.yml:"
-                cat docker-compose.yml
-
-            - name: Stop existing containers
-              run: docker compose down || true
+                docker stop flask-app || true
+                docker rm flask-app || true
+                docker stop github-actions-zero-to-hero-web-1 || true
+                docker rm github-actions-zero-to-hero-web-1 || true
+                docker system prune -f || true
 
             - name: Build Docker image locally
               run: |
                 echo "Building Docker image..."
-                docker build -t github-actions-app:latest .
-                docker images | grep github-actions-app
+                docker build -t flask-app:latest .
+                docker images | grep flask-app
 
-            - name: Verify gunicorn is installed
+            - name: Start Docker container
               run: |
-                echo "Checking if gunicorn is installed in the image..."
-                docker run --rm github-actions-app:latest pip show gunicorn
-                echo "Checking if gunicorn is in PATH..."
-                docker run --rm github-actions-app:latest which gunicorn
-
-            - name: Deploy with Docker Compose
-              run: |
-                echo "Deploying Flask app..."
-                docker compose down || true
-                docker compose up -d
-                echo "Docker containers:"
-                docker compose ps
+                echo "Starting Flask container..."
+                docker run -d \
+                  -p 80:5000 \
+                  --name flask-app \
+                  --rm \
+                  flask-app:latest
 
             - name: Wait for Flask app to be ready
               run: |
@@ -73,5 +57,6 @@ jobs:
                 echo ""
                 echo "Flask app is successfully deployed!"
 
-            - name: Check Docker container status
-              run: docker compose ps
+            - name: Check container logs
+              if: always()
+              run: docker logs flask-app
