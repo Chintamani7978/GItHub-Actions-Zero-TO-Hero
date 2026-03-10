@@ -13,14 +13,40 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          clean: true
 
-      - name: Deploy with docker-compose
+      - name: Remove old containers and images
         run: |
-          docker compose down || true
-          docker compose up -d --build --force-recreate
+          echo "Stopping all containers..."
+          docker compose down -v --remove-orphans || true
+          echo "Removing dangling images..."
+          docker image prune -a -f || true
+          echo "Removing all volumes..."
+          docker volume prune -f || true
+          echo "Full system cleanup..."
+          docker system prune -a --volumes -f || true
+
+      - name: Verify Docker is clean
+        run: |
+          echo "Remaining images:"
+          docker images
+          echo "Remaining containers:"
+          docker ps -a
+
+      - name: Build and deploy with docker-compose
+        run: |
+          echo "Building fresh image..."
+          docker compose build --no-cache
+          echo "Starting containers..."
+          docker compose up -d --force-recreate
           echo "Flask app deployed successfully"
 
       - name: Verify deployment
         run: |
+          echo "Waiting for app to start..."
           sleep 5
-          curl -f http://localhost/ || echo "Waiting for app to be ready..."
+          echo "Checking Flask app health..."
+          curl -v http://localhost/ || echo "App not responding yet"
+          echo "Deployment verification complete"
