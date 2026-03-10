@@ -1,0 +1,34 @@
+name: Build and Deploy Flask App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        run: docker --version
+
+      - name: Build Docker image
+        run: |
+          docker build -t flask-app:latest .
+          echo "Docker image built successfully"
+
+      - name: Deploy with docker-compose
+        run: |
+          docker compose down || true
+          docker compose up -d --build --force-recreate
+          echo "Flask app deployed successfully"
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          curl -f http://localhost:5000/ || echo "Waiting for app to be ready..."
